@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OTT</title>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@600&display=swap');
+      * {
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: 'Nunito', sans-serif;
+        font-size: 12px;
+      }
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      section {
+        padding: 50px 50px;
+      }
+      header h1 {
+        text-align: center;
+        margin-bottom: 15px;
+      }
+      #movies {
+        margin-top: 50px;
+        width: 100%;
+        display: grid;
+        gap: 25px;
+        grid-template: auto/ repeat(auto-fit, minmax(200px, 1fr));
+      }
+      .movie-card {
+        width: 100%;
+        border-radius: 10px;
+        border: solid;
+        padding: 15px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.6);
+      }
+      .movie-card img {
+        width: 100%;
+        height: 300px;
+        border-radius: 5px;
+      }
+      .movie-card .title {
+        margin: 20px 10px 0 0;
+        font-size: 1.2rem;
+        font-weight: 400;
+      }
+    </style>
+  </head>
+  <body>
+    <section>
+      <div class="container">
+        <header>
+          <h1>List Movie</h1>
+        </header>
+
+        <form onsubmit="return false">
+          <input type="text" name="movie-title" id="movie-title" placeholder="Movie Title" />
+          <button id="search" onclick="findMovies()">search</button>
+        </form>
+        <div id="movies"></div>
+      </div>
+    </section>
+
+    <script>
+      const getMovies = async (keyword) => {
+        try {
+          const response = await fetch(`https://ott-details.p.rapidapi.com/search?title=${keyword}&page=1`, {
+            method: 'GET',
+            headers: {
+              'x-rapidapi-host': 'ott-details.p.rapidapi.com',
+              'x-rapidapi-key': 'feb95c58a6msh11b2f67559e8618p1cb6a3jsn1e5587a1bce1',
+            },
+          });
+          const data = await response.json();
+          console.log(data);
+          return data;
+        } catch (error) {
+          console.log(error);
+          return;
+        }
+      };
+
+      const displayMovies = (movieData) => {
+        // console.log(movies);
+        const moviesDiv = document.getElementById('movies');
+
+        for (let i = 0; i < movieData.length; i++) {
+          const movie = movieData[i];
+
+          const image = movie.imageurl && movie.imageurl[0] ? movie.imageurl[0] : './defaultimage.jpg';
+
+          const title = movie.title;
+          const year = movie.released;
+
+          const card = document.createElement('div');
+
+          card.innerHTML = `
+          <div class="movie-card">
+            <img src="${image}" onerror="this.src='./defaultimage.jpg'"/>
+            <div class="card-content">
+              <p class=movie-title>${title}</p>
+              <p>Released: ${year}</p>
+            </div>
+          </div>
+          `;
+          document.getElementById('movies').append(card);
+        }
+      };
+
+      const findMovies = async () => {
+        const keyword = document.getElementById('movie-title').value;
+        const movieData = await getMovies(keyword);
+        displayMovies(movieData.results);
+      };
+    </script>
+  </body>
+</html>
